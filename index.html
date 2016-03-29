@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<style>
+	#myCanvas {
+		border: 1px solid;
+	}
+</style>
+<head>
+	<title></title>
+</head>
+<script>
+var context;
+var x=200;
+var y=300;
+var pl= 20;
+var dx=2;
+var dy=2;
+var blockList = {};
+var r = {};
+function init()
+{
+  document.onkeydown = function(evt) {
+  	// console.log(evt)
+    evt = evt || window.event;
+    if (evt.keyCode == 37) {
+    	if(pl >= 20){
+			pl -= 20;
+		}
+    } else if(evt.keyCode == 39){
+    	if(pl <= 340){
+    		pl += 20;
+    	}
+    }
+    else if(evt.keyCode == 32){
+    	draw();
+    }
+};
+  document.onkeyup = function(evt) {
+  	// console.log(evt)
+  	evt = evt || window.event;
+    if (evt.keyCode == 37) {
+    	if(pl >= 20){
+			pl -= 20;
+		}
+    } else if(evt.keyCode == 39){
+    	if(pl <= 340){
+    		pl += 20;
+    	}
+    }
+    else if(evt.keyCode == 32){
+    	// console.log(blockList);
+    	// console.log("X: ", x, "Y: ", y, blockList)
+    	draw();
+    }
+  }
+
+  context= myCanvas.getContext('2d');
+  // setInterval(draw,10);
+  for(var i =14, j=0, m=0; i< 500 && j < 200; i+= 52, m++){
+
+  	// block(i, j);
+  	r ={x: i, y:j , condition:false};
+  	blockList[m] = r;
+  	if((i + 30) >= 420){
+  		i=-38;
+  		j+= 52;
+  	}
+  }
+
+}
+
+
+function circle(color, size, diameter){
+  context.beginPath();
+  context.fillStyle=color;
+  // Draws a circle of radius 20 at the coordinates 100,100 on the canvas
+  context.arc(x,y,diameter,0,Math.PI*2,true);
+  context.closePath();
+  context.fill();
+  if( x< diameter || x>size-diameter) dx=-dx; 
+  if( y< diameter || y>size-diameter) dy=-dy; 
+}
+
+
+function block(x, y){
+  context.beginPath();
+  context.fillStyle= 'red';
+  context.fillRect(x,y,50,50);
+  context.closePath();
+  context.fill();
+}
+
+function board(){
+	Object.keys(blockList).forEach(function(square){
+		if(blockList[square].condition == false){
+			block(blockList[square].x, blockList[square].y);
+		}
+	});	
+}
+
+function paddle(){ 
+  context.beginPath();
+  context.fillStyle= 'grey';
+  context.fillRect(pl,440,150,50);
+  context.closePath();
+  context.fill();
+
+}
+
+function checkPaddle(){ 
+	 // console.log("X: ", x, "Y:",y, "PL:",pl);
+	// if on paddle
+	if( x > pl && x < pl+150 && y == 420){
+		// calculate percentage
+		var percentage = (x / (pl+150));
+		 dy=-(dy*percentage);
+		 dy-=1;
+	}
+
+	  x+=dx; 
+	  y+=dy;
+}
+
+function checkBlocks(){
+
+	Object.keys(blockList).forEach(function(square){
+		if(blockList[square].condition == false){
+			// console.log(blockList[square]);
+			console.log("X: ", x, "Y: ", y, blockList[square].x, blockList[square].y)
+
+			if( x+10 > blockList[square].x 
+				&& x+10 < blockList[square].x+50 
+				&& y-20 >= blockList[square].y+48 
+				&& y-20 <= blockList[square].y+52){
+				blockList[square].condition = true;
+				// dx=-dx;
+				// console.log("Hit", blockList[square])
+				dy=-dy; 
+			} 
+			// else if()
+		}
+	});
+}
+
+function draw()
+{
+  context.clearRect(0,0, 500,500);
+  checkPaddle();
+  checkBlocks();
+  circle('blue', 500, 20);
+  board();
+  paddle();
+
+
+  // Boundary Logic
+
+}
+
+</script>
+<body onLoad="init();">
+  <canvas id="myCanvas" width="500" height="500" >
+  </canvas>
+</body>
+</html>
